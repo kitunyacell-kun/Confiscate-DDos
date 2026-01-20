@@ -1,6 +1,3 @@
-#!usr/bin/python
-# _*_ coding: utf-8 _*_
-import os
 from sys import stdout
 from scapy.all import *
 from random import randint
@@ -9,9 +6,9 @@ import threading
 import time
 
 
-# Flooding Attack Tool
-os.system('clear')
-print("""
+# Flooding
+def main():
+    print("""
 
 
 
