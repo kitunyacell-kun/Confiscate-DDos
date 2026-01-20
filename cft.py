@@ -111,7 +111,7 @@ while True:
             sys.exit("Invalid Number Of Packets!")
         u = udp(ip,port,size,packets)
         u.start()
-        print("\033[48;5;206mUdp flood "+str(ip)+", "+port+", "+size+"\033[0m)
+        print("\033[48;5;206mUdp flood "+str(ip)+" \033[32minfo".(self.ip, self.port))
     except KeyboardInterrupt:
         print ("Stopping Flood!")
         sys.exit()
