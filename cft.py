@@ -6,6 +6,7 @@ import logging
 import string
 import argparse
 import ssl
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from random import choice, randint
 
 parser = argparse.ArgumentParser(description="Slowloris PoC demonstration in python3")
