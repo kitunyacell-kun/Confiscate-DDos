@@ -87,7 +87,7 @@ def init_attack(nAttackers):
 
 def main():
     logging.info("Attacking {} with {} attackers".format(host, connections))  
-    logging.info("Establishing connections..")
+    logging.info("Ip address" +str(ip)+ " logging attack")
     attackers = []
     
     
