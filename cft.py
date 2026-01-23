@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import sys
 import socket
 import time
@@ -7,6 +8,12 @@ import string
 import argparse
 import ssl
 from random import choice, randint
+
+os.system('clear')
+print("""
+0
+0
+""")
 
 parser = argparse.ArgumentParser(description="Slowloris PoC demonstration in python3")
 parser.add_argument('RHOST', nargs="?", help="Remote host, the victim webserver in either domain or IP format")
