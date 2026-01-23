@@ -85,6 +85,12 @@ def init_attack(nAttackers):
     logging.debug("Creating attacker | ID: {}".format(identifier))
     return attacker(identifier, agent, s)
 
+with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            console=console,
 def main():
     logging.info("Attacking {} with {} attackers".format(host, connections))  
     logging.info("Establishing connections..")
