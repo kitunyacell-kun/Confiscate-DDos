@@ -100,6 +100,7 @@ def main():
 
     while True:
         try:
+            logging.info("Attacking {} with {} attackers".format(host, connections))
             logging.info("Keeping {1} attacker connections alive.. ".format(len(attackers)))
             for s in list(attackers):
                 try:
