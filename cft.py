@@ -11,8 +11,9 @@ from random import choice, randint
 
 os.system('clear')
 print("""
-0
-0
+╔══════════╗
+║
+╚═══════════╝
 """)
 
 parser = argparse.ArgumentParser(description="Slowloris PoC demonstration in python3")
