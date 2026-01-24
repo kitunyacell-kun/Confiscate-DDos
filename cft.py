@@ -25,6 +25,22 @@ print("""
 ▒▒▒▒╚═══════╝▒▒╚═╝▒▒▒▒▒╚═╝▒╚═══════╝▒▒▒╚═╝▒▒▒▒▒▒▒▒╚═══════╝▒▒▒╚══╝▒▒▒▒▒▒▒
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\033[0m
 """)
+print(f"\033[97m ╔{'═' * 60}╗")
+print(f"\033[97m ║ \033[100m{' ' * 4}Z'black.com{' ' * 23}\033[0m ║")
+print(f"\033[97m ║ \033[100m{' ' * 4}kunkaffa@gmail.com{' ' * 36}\033[0m ║")
+print(f"\033[97m ╚{'═' * 60}╝")
+while attemps < 100:
+    print("\033[38;5;6m┏━━KunFayz━━⬣")
+    username = input("\033[38;5;6m┗> Enter Username: \033[30m")
+    password = input("\033[38;5;6m┗> Enter password: \033[30m")
+
+    if username == 'fuck' and password == 'zion':
+        print("\033[100m \033[31m••> BURNING WEBS 210πiS \033[0m")
+        break
+    else:
+        print('Incorrect credentials. Check if you have Caps lock on and try again.')
+        attemps += 1
+        continue
 parser = argparse.ArgumentParser(description="Slowloris PoC demonstration in python3")
 parser.add_argument('RHOST', nargs="?", help="Remote host, the victim webserver in either domain or IP format")
 parser.add_argument('-p', '--port', default=80, help="Port of the remote webserver", type=int)
