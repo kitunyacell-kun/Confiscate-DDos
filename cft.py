@@ -119,7 +119,7 @@ def init_attack(nAttackers):
     return attacker(identifier, agent, s)
 
 def main():
-    logging.info("\033[38;5;6mAttack {} with {} attackers".format(host, connections))  
+    logging.info("\033[38;5;6mStaryed ttacking {}\033[37m with {}\033[32m slowly and surely".format(host, connections))  
     logging.info("Establishing connections..")
     attackers = []
 
