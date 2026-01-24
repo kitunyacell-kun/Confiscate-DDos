@@ -25,11 +25,11 @@ print("""
 ▒▒▒╚╗        ║▒║ ║▒▒▒▒▒║ ║▒║       ╔╝▒▒║ ║▒▒▒▒▒▒▒▒║       ║▒▒▒║  ║▒▒▒▒▒▒▒
 ▒▒▒▒╚═══════╝▒▒╚═╝▒▒▒▒▒╚═╝▒╚═══════╝▒▒▒╚═╝▒▒▒▒▒▒▒▒╚═══════╝▒▒▒╚══╝▒▒▒▒▒▒▒
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒""")
-print(f"\033[97m╔{'═' * 70}╗")
-print(f"\033[97m║\033[100m{' ' * 4}Don't attack government sites{' ' * 33}\033[0m║")
-print(f"\033[97m║\033[100m{' ' * 4}Just to fight to help Palestine{' ' * 46}\033[0m║")
-print(f"\033[97m║\033[100m{' ' * 4}_Use it wisely_{' ' * 46}\033[0m║")
-print(f"\033[97m╚{'═' * 70}╝")
+print(f"\033[97m╔{'═' * 71}╗")
+print(f"\033[97m║\033[103m{' ' * 21}Don't attack government sites{' ' * 21}\033[0m║")
+print(f"\033[97m║\033[103m{' ' * 20}Just to fight to help Palestine{' ' * 20}\033[0m║")
+print(f"\033[97m║\033[103m{' ' * 23}_Use it wisely_{' ' * 23}\033[0m║")
+print(f"\033[97m╚{'═' * 71}╝")
 while attemps < 100:
     print("\033[38;5;6m┏━━KunFayz━━⬣")
     username = input("\033[38;5;6m┗> Enter Username: \033[30m")
